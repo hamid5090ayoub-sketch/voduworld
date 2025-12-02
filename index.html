@@ -1,0 +1,1221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>VoduWorld – Vodun AI Agent</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    :root {
+      --bg: #030712;
+      --card: #020617;
+      --card2: #0b1120;
+      --primary: #6366f1;
+      --primary-soft: #818cf8;
+      --accent: #f97316;
+      --accent-soft: #fed7aa;
+      --text-main: #e5e7eb;
+      --text-soft: #9ca3af;
+      --border: #1f2937;
+      --good: #22c55e;
+      --bad: #ef4444;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: radial-gradient(circle at top, #111827 0, #020617 60%, #000 100%);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: stretch;
+      padding: 10px;
+    }
+
+    .app {
+      width: 100%;
+      max-width: 1050px;
+      background: #020617;
+      border-radius: 24px;
+      border: 1px solid rgba(148,163,184,0.3);
+      box-shadow: 0 14px 40px rgba(15,23,42,0.9);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    header {
+      padding: 14px 16px 10px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: radial-gradient(circle at left, rgba(99,102,241,0.6), transparent 55%);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .logo {
+      width: 44px;
+      height: 44px;
+      border-radius: 999px;
+      padding: 3px;
+      background: conic-gradient(from 230deg,#22c55e,#6366f1,#f97316,#22c55e);
+      display:flex;align-items:center;justify-content:center;
+    }
+    .logo-inner {
+      width:100%;height:100%;
+      border-radius:999px;
+      background:#020617;
+      display:flex;align-items:center;justify-content:center;
+      font-size:22px;
+    }
+    .title-block h1 {
+      margin:0;font-size:19px;font-weight:700;
+      display:flex;align-items:center;gap:6px;
+    }
+    .title-tag {
+      font-size:11px;padding:2px 7px;border-radius:999px;
+      background:rgba(22,163,74,0.18);border:1px solid rgba(22,163,74,0.5);
+      color:#bbf7d0;
+    }
+    .title-block p {
+      margin:3px 0 0;font-size:12px;color:var(--text-soft);
+    }
+    .header-badge {
+      margin-left:auto;font-size:11px;padding:5px 9px;border-radius:999px;
+      border:1px solid rgba(148,163,184,0.5);background:rgba(15,23,42,0.95);
+      color:var(--accent-soft);display:flex;gap:6px;align-items:center;
+    }
+
+    nav.nav {
+      display:flex;gap:6px;padding:8px 10px 9px;
+      border-bottom:1px solid var(--border);
+      background:radial-gradient(circle at right,rgba(56,189,248,0.18),transparent 60%);
+      overflow-x:auto;
+    }
+    .nav-btn {
+      flex:1;min-width:105px;border-radius:999px;
+      border:1px solid rgba(148,163,184,0.45);
+      background:rgba(15,23,42,0.98);color:var(--text-soft);
+      font-size:13px;padding:7px 8px;display:inline-flex;align-items:center;
+      justify-content:center;gap:6px;cursor:pointer;white-space:nowrap;
+      transition:all 0.16s ease;
+    }
+    .nav-btn span.icon {font-size:16px;}
+    .nav-btn.active {
+      background:linear-gradient(135deg,var(--primary),var(--accent));
+      color:#f9fafb;border-color:transparent;
+      box-shadow:0 7px 18px rgba(99,102,241,0.7);
+    }
+    .nav-btn:not(.active):hover {
+      border-color:var(--primary-soft);color:#e5e7eb;
+    }
+
+    main {
+      padding:11px 13px 14px;
+      display:flex;flex-direction:column;gap:9px;
+      max-height:calc(100vh - 125px);overflow-y:auto;
+    }
+
+    .hint {
+      font-size:12px;color:var(--text-soft);
+      background:rgba(15,23,42,0.95);
+      padding:5px 11px;border-radius:999px;
+      border:1px dashed rgba(148,163,184,0.45);
+      display:inline-flex;gap:8px;align-items:center;
+    }
+    .hint span:first-child{font-size:13px;}
+
+    .view {display:none;}
+    .view.active {display:block;}
+
+    /* Learn */
+    .grid {
+      display:grid;
+      grid-template-columns:repeat(3,minmax(0,1fr));
+      gap:10px;
+    }
+    .card {
+      background:var(--card2);
+      border-radius:18px;
+      border:1px solid var(--border);
+      padding:9px 9px 8px;
+      display:flex;flex-direction:column;gap:5px;
+    }
+    .card-header {
+      display:flex;align-items:center;gap:7px;
+    }
+    .card-ico {
+      width:28px;height:28px;border-radius:999px;
+      background:radial-gradient(circle at top,rgba(56,189,248,0.35),rgba(15,23,42,1));
+      display:flex;align-items:center;justify-content:center;font-size:17px;
+    }
+    .card-title {font-size:13px;font-weight:600;}
+    .card-chip {
+      margin-left:auto;font-size:10px;padding:2px 6px;border-radius:999px;
+      border:1px solid rgba(148,163,184,0.6);color:#e5e7eb;
+    }
+    .card-text {font-size:12px;color:var(--text-soft);line-height:1.4;}
+    .tag-row {display:flex;flex-wrap:wrap;gap:4px;margin-top:2px;}
+    .tag {font-size:10px;padding:2px 6px;border-radius:999px;
+      border:1px solid rgba(148,163,184,0.6);background:#020617;color:#e5e7eb;}
+
+    .btn {
+      border-radius:999px;border:none;padding:6px 11px;font-size:12px;
+      font-weight:500;cursor:pointer;display:inline-flex;align-items:center;
+      gap:6px;transition:all 0.15s ease;
+    }
+    .btn-primary {
+      background:linear-gradient(135deg,var(--primary),var(--accent));
+      color:#f9fafb;box-shadow:0 7px 18px rgba(99,102,241,0.7);
+    }
+    .btn-secondary {
+      background:#020617;border:1px solid var(--border);color:var(--text-soft);
+    }
+
+    /* Quiz */
+    .quiz-card {
+      background:var(--card2);border-radius:20px;border:1px solid var(--border);
+      padding:11px 11px 9px;
+    }
+    .quiz-header {display:flex;justify-content:space-between;align-items:center;gap:8px;}
+    .quiz-title {font-size:14px;font-weight:600;display:flex;gap:6px;align-items:center;}
+    .quiz-pill {
+      font-size:11px;padding:2px 7px;border-radius:999px;
+      background:rgba(56,189,248,0.16);border:1px solid rgba(56,189,248,0.5);
+      color:#a5f3fc;
+    }
+    .quiz-progress-wrap {
+      width:100%;max-width:150px;height:6px;border-radius:999px;
+      background:#020617;overflow:hidden;
+    }
+    .quiz-progress {
+      height:100%;width:0;border-radius:999px;
+      background:linear-gradient(90deg,var(--primary),var(--accent));
+      transition:width 0.16s ease;
+    }
+    .quiz-question {margin:9px 0 7px;font-size:14px;font-weight:500;}
+    .options {display:flex;flex-direction:column;gap:6px;}
+    .option-btn {
+      width:100%;border-radius:999px;border:1px solid rgba(148,163,184,0.7);
+      background:#020617;color:var(--text-main);font-size:13px;padding:6px 8px;
+      display:flex;align-items:center;gap:7px;cursor:pointer;transition:all 0.16s ease;
+      text-align:left;
+    }
+    .option-btn:hover {border-color:var(--primary-soft);}
+    .option-letter {
+      width:20px;height:20px;border-radius:999px;border:1px solid rgba(148,163,184,0.8);
+      display:flex;align-items:center;justify-content:center;font-size:11px;background:#020617;
+    }
+    .option-btn.correct{border-color:var(--good);background:rgba(22,163,74,0.2);}
+    .option-btn.incorrect{border-color:var(--bad);background:rgba(239,68,68,0.2);}
+    .quiz-footer{margin-top:7px;display:flex;justify-content:space-between;align-items:center;gap:8px;}
+    .quiz-status{font-size:12px;color:var(--text-soft);}
+    .answer-expl{
+      margin-top:7px;font-size:12px;color:var(--text-soft);
+      background:#020617;padding:6px 8px;border-radius:12px;
+      border:1px dashed rgba(148,163,184,0.6);
+    }
+    .quiz-summary{margin-top:8px;text-align:center;font-size:13px;}
+    .badge-score{
+      display:inline-flex;align-items:center;gap:6px;
+      padding:5px 10px;border-radius:999px;
+      background:rgba(22,163,74,0.22);border:1px solid rgba(22,163,74,0.6);
+      color:#bbf7d0;margin-bottom:3px;
+    }
+
+    /* Spirit game */
+    .game-card {
+      background:var(--card2);border-radius:20px;border:1px solid var(--border);
+      padding:11px 11px 9px;margin-top:2px;
+    }
+    .game-header{display:flex;justify-content:space-between;align-items:center;gap:6px;}
+    .game-header h3{margin:0;font-size:14px;display:flex;gap:6px;align-items:center;}
+    .game-sub{font-size:12px;color:var(--text-soft);margin:6px 0 7px;}
+    .clue-list{font-size:12px;margin:0 0 7px;padding-left:16px;}
+    .spirit-options{display:flex;flex-wrap:wrap;gap:6px;}
+    .spirit-btn{
+      padding:4px 9px;border-radius:999px;border:1px solid rgba(148,163,184,0.7);
+      background:#020617;font-size:12px;color:var(--text-main);
+      cursor:pointer;transition:all 0.15s ease;
+    }
+    .spirit-btn.correct{border-color:var(--good);background:rgba(22,163,74,0.22);}
+    .spirit-btn.incorrect{border-color:var(--bad);background:rgba(239,68,68,0.22);}
+    .game-feedback{margin-top:6px;font-size:12px;color:var(--text-soft);}
+
+    /* Tools / Cuisine */
+    .tools-grid{
+      display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;
+    }
+    .tools-card{
+      background:var(--card2);border-radius:20px;border:1px solid var(--border);
+      padding:10px 10px 9px;
+    }
+    .tools-card h3{margin:0 0 4px;font-size:14px;}
+    .tools-card p{margin:0 0 6px;font-size:12px;color:var(--text-soft);}
+    .tools-label{font-size:12px;margin-top:6px;margin-bottom:3px;color:var(--text-soft);}
+    .tools-input{
+      width:100%;border-radius:999px;border:1px solid var(--border);
+      background:#020617;color:var(--text-main);
+      padding:5px 9px;font-size:12px;margin-bottom:4px;
+    }
+    .tools-output{margin-top:6px;font-size:12px;color:var(--text-soft);
+      background:#020617;border-radius:12px;padding:6px 8px;
+      border:1px dashed rgba(148,163,184,0.6);
+    }
+
+    /* Profile */
+    .profile-layout{display:grid;grid-template-columns:1.2fr 1fr;gap:10px;}
+    .profile-card{
+      background:var(--card2);border-radius:20px;border:1px solid var(--border);
+      padding:10px 10px 9px;
+    }
+    .profile-header{display:flex;gap:9px;align-items:center;margin-bottom:6px;}
+    .avatar{
+      width:42px;height:42px;border-radius:999px;
+      background:radial-gradient(circle at top,rgba(249,115,22,0.9),rgba(15,23,42,1));
+      display:flex;align-items:center;justify-content:center;font-size:24px;
+    }
+    .profile-header h3{margin:0;font-size:14px;}
+    .profile-header p{margin:2px 0 0;font-size:12px;color:var(--text-soft);}
+    .profile-row{margin-top:5px;font-size:12px;}
+    .profile-row label{display:block;margin-bottom:3px;color:var(--text-soft);}
+    .profile-input{
+      width:100%;border-radius:999px;border:1px solid var(--border);
+      background:#020617;color:#e5e7eb;padding:5px 9px;font-size:12px;
+    }
+    .xp-wrap{margin-top:7px;font-size:12px;}
+    .xp-top{display:flex;justify-content:space-between;color:var(--text-soft);margin-bottom:3px;}
+    .xp-bar-out{
+      width:100%;height:8px;border-radius:999px;background:#020617;overflow:hidden;
+    }
+    .xp-bar-in{
+      width:0;height:100%;border-radius:999px;
+      background:linear-gradient(90deg,var(--primary),var(--accent));
+      transition:width 0.2s ease;
+    }
+    .stats-list{margin-top:7px;font-size:12px;color:var(--text-soft);list-style:none;padding-left:0;}
+    .stats-list li{margin-bottom:3px;}
+    .reset-row{margin-top:7px;display:flex;justify-content:flex-end;}
+    .ach-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;margin-top:5px;}
+    .ach-card{
+      border-radius:14px;border:1px solid var(--border);
+      padding:6px 7px;background:#020617;font-size:11px;
+      display:flex;gap:7px;align-items:flex-start;
+    }
+    .ach-icon{font-size:16px;}
+    .ach-main{font-weight:600;margin-bottom:1px;}
+    .ach-sub{color:var(--text-soft);}
+    .ach-locked{opacity:0.4;}
+
+    @media (max-width:820px){
+      .grid{grid-template-columns:repeat(2,minmax(0,1fr));}
+      .tools-grid{grid-template-columns:1fr;}
+      .profile-layout{grid-template-columns:1fr;}
+      main{max-height:calc(100vh - 120px);}
+    }
+    @media (max-width:600px){
+      .grid{grid-template-columns:1fr;}
+      .header-badge{display:none;}
+      .nav-btn{font-size:12px;min-width:95px;padding:7px 7px;}
+      .title-block h1{font-size:17px;}
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header>
+      <div class="logo"><div class="logo-inner">🌀</div></div>
+      <div class="title-block">
+        <h1>VoduWorld <span class="title-tag">Vodun Learning Agent</span></h1>
+        <p>From learning the basics, to quizzes, to games and tools – all inside Vodun.</p>
+      </div>
+      <div class="header-badge"><span>📱</span><span>Tap-friendly · Works on phone</span></div>
+    </header>
+
+    <nav class="nav">
+      <button class="nav-btn active" data-view="learn"><span class="icon">📚</span>Learn</button>
+      <button class="nav-btn" data-view="quiz"><span class="icon">❓</span>Quiz</button>
+      <button class="nav-btn" data-view="spirits"><span class="icon">✨</span>“Who Am I?”</button>
+      <button class="nav-btn" data-view="tools"><span class="icon">🧰</span>Tools</button>
+      <button class="nav-btn" data-view="cuisine"><span class="icon">🍲</span>Cuisine</button>
+      <button class="nav-btn" data-view="profile"><span class="icon">🏆</span>Profile</button>
+    </nav>
+
+    <main>
+      <div class="hint"><span>👆</span><span>Start with “Learn”, then test yourself in the games and tools, and finish by checking your profile.</span></div>
+
+      <!-- LEARN -->
+      <section class="view active" id="view-learn">
+        <div class="grid">
+          <div class="card">
+            <div class="card-header">
+              <div class="card-ico">🌍</div>
+              <div class="card-title">Origins of Vodun</div>
+              <div class="card-chip">Start here</div>
+            </div>
+            <div class="card-text">
+              Vodun began in West Africa, especially in today’s Benin and Togo, in farming and fishing communities.
+              People see rivers, trees, and thunder as full of spirit and life, not just “objects”.
+            </div>
+            <div class="tag-row">
+              <span class="tag">Dahomey</span><span class="tag">Fon &amp; Ewe</span><span class="tag">Sacred nature</span>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <div class="card-ico">☯️</div>
+              <div class="card-title">Mawu-Lisa &amp; Creation</div>
+            </div>
+            <div class="card-text">
+              A power called Mawu-Lisa creates the world. Mawu is gentle and moon-like, Lisa is strong and sun-like.
+              Together they show balance: night/day, soft/strong, female/male. Many Vodun spirits then care for
+              different parts of creation.
+            </div>
+            <div class="tag-row">
+              <span class="tag">Balance</span><span class="tag">Cosmic harmony</span><span class="tag">Two-in-one</span>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <div class="card-ico">🕊️</div>
+              <div class="card-title">Spirits (Vodun)</div>
+            </div>
+            <div class="card-text">
+              Vodun are forces of earth, water, justice, and family. Each has its own job, colors, and symbols. People
+              make offerings and respect taboos to keep harmony. They are not “evil monsters”.
+            </div>
+            <div class="tag-row">
+              <span class="tag">Legba: crossroads</span><span class="tag">Sakpata: earth</span><span class="tag">Heviosso: thunder</span>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <div class="card-ico">🥁</div>
+              <div class="card-title">Rituals &amp; Ceremonies</div>
+            </div>
+            <div class="card-text">
+              Drums, songs, dance, and offerings create a sacred space. Sometimes a spirit “rides” a dancer’s body so it
+              can speak to the community. This is seen as a gift and a serious moment, not something scary.
+            </div>
+            <div class="tag-row">
+              <span class="tag">Drums</span><span class="tag">Dance</span><span class="tag">Possession</span>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <div class="card-ico">🧿</div>
+              <div class="card-title">Divination &amp; Destiny</div>
+            </div>
+            <div class="card-text">
+              In Fa divination, a diviner uses palm nuts or cowries to read signs. These signs tell stories about a
+              person’s problems and destiny, and how to walk in balance again.
+            </div>
+            <div class="tag-row">
+              <span class="tag">Fa / Afa</span><span class="tag">Signs</span><span class="tag">Guidance</span>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <div class="card-ico">🤝</div>
+              <div class="card-title">Community &amp; Ethics</div>
+            </div>
+            <div class="card-text">
+              Vodun is practiced together. Families, elders, and priests share rituals. Important values are respect,
+              honesty, keeping promises, and caring for others. When balance is broken, people work to restore it.
+            </div>
+            <div class="tag-row">
+              <span class="tag">Respect</span><span class="tag">Justice</span><span class="tag">Harmony</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- QUIZ -->
+      <section class="view" id="view-quiz">
+        <div class="quiz-card">
+          <div class="quiz-header">
+            <div class="quiz-title">🧠 Main Vodun Quiz <span class="quiz-pill" id="quiz-category">Origins</span></div>
+            <div class="quiz-progress-wrap"><div class="quiz-progress" id="quiz-progress"></div></div>
+          </div>
+          <div class="quiz-question" id="quiz-question">Loading…</div>
+          <div class="options" id="quiz-options"></div>
+          <div class="answer-expl" id="quiz-expl" style="display:none;"></div>
+          <div class="quiz-footer">
+            <div class="quiz-status" id="quiz-status">Question 1 / ?</div>
+            <div style="display:flex;gap:6px;">
+              <button class="btn btn-secondary" id="quiz-restart" style="display:none;">Restart</button>
+              <button class="btn btn-primary" id="quiz-next">Next</button>
+            </div>
+          </div>
+          <div class="quiz-summary" id="quiz-summary" style="display:none;">
+            <div class="badge-score" id="quiz-score-badge">Score: 0%</div>
+            <div id="quiz-summary-text">Replay to improve your score and unlock trophies.</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- SPIRIT GAME -->
+      <section class="view" id="view-spirits">
+        <div class="game-card">
+          <div class="game-header">
+            <h3>✨ “Who Am I?” Spirit Game</h3>
+            <span class="quiz-pill" id="spirit-score-pill">Best streak: 0</span>
+          </div>
+          <p class="game-sub">Read the clues and guess which spirit is speaking. Try to build a long streak.</p>
+          <ul class="clue-list" id="spirit-clues"></ul>
+          <div class="spirit-options" id="spirit-options"></div>
+          <div class="game-feedback" id="spirit-feedback"></div>
+          <div style="margin-top:8px;display:flex;justify-content:flex-end;">
+            <button class="btn btn-secondary" id="spirit-new">New spirit</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- TOOLS -->
+      <section class="view" id="view-tools">
+        <div class="tools-grid">
+          <div class="tools-card">
+            <h3>🕯️ Vodun Ritual & Symbol Helper</h3>
+            <p>
+              Type a theme or spirit, and the agent suggests a simple ritual idea, symbols, and values.
+              This is for classroom learning, not for real religious practice.
+            </p>
+
+            <label class="tools-label" for="ritual-topic">Theme or spirit</label>
+            <input id="ritual-topic" class="tools-input"
+                   placeholder="ex: Legba, ancestors, healing, justice…" />
+
+            <button class="btn btn-primary" onclick="generateRitualIdea()">Generate idea</button>
+
+            <div class="tools-output" id="ritual-output">
+              Example: “Legba at the crossroads” → a short ritual outline with symbols and meanings.
+            </div>
+          </div>
+
+          <div class="tools-card">
+            <h3>💰 Financial Tools</h3>
+            <p>Quick calculations for simple business questions: profit, margin, and break-even quantity.</p>
+            <label class="tools-label">Selling price per unit</label>
+            <input id="fin-price" class="tools-input" type="number" step="0.01" placeholder="ex: 50" />
+            <label class="tools-label">Variable cost per unit</label>
+            <input id="fin-cost" class="tools-input" type="number" step="0.01" placeholder="ex: 30" />
+            <label class="tools-label">Fixed costs (rent, salaries, etc.)</label>
+            <input id="fin-fixed" class="tools-input" type="number" step="0.01" placeholder="ex: 1000" />
+            <label class="tools-label">Expected quantity sold</label>
+            <input id="fin-qty" class="tools-input" type="number" step="1" placeholder="ex: 150" />
+            <button class="btn btn-primary" id="fin-calc">Calculate</button>
+            <div class="tools-output" id="fin-output">
+              Fill the numbers and click “Calculate” to see profit, margin, and break-even quantity.
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- CUISINE -->
+      <section class="view" id="view-cuisine">
+        <div class="tools-card">
+          <h3>🍲 Vodun Cuisine & Ritual Foods</h3>
+          <p>
+            Food in Vodun carries meaning: ingredients are linked to spirits, the earth, and community.
+            These examples are inspired by Beninese/Togolese traditions and used here for learning.
+          </p>
+
+          <ul style="font-size:12px;color:#cbd5e1;line-height:1.5;margin-bottom:7px;">
+            <li><b>Akassa</b> – fermented corn dough used during community gatherings.</li>
+            <li><b>Gboman stew</b> – leafy greens cooked with palm oil and smoked fish.</li>
+            <li><b>Akpan</b> – fermented milk & corn served in some family rituals.</li>
+            <li><b>Kpètè-Kpètè</b> – millet or maize drink offered in libations.</li>
+            <li><b>Palm oil rice</b> – bright orange rice linked to earth and fire spirits.</li>
+            <li><b>Calabash fruits</b> – fruits offered to certain water and forest spirits.</li>
+          </ul>
+
+          <button class="btn btn-primary" onclick="generateRecipe()">Generate a Traditional-Style Vodun Recipe</button>
+
+          <div class="tools-output" id="recipe-output">
+            Click the button to receive a random recipe based on traditional Beninese/Togolese ritual foods.
+          </div>
+        </div>
+      </section>
+
+      <!-- PROFILE -->
+      <section class="view" id="view-profile">
+        <div class="profile-layout">
+          <div class="profile-card">
+            <div class="profile-header">
+              <div class="avatar" id="avatar-emoji">🧿</div>
+              <div>
+                <h3 id="profile-name-display">Vodun Explorer</h3>
+                <p>Track XP, best scores, and trophies. Progress is saved on this device.</p>
+              </div>
+            </div>
+            <div class="profile-row">
+              <label for="profile-name">Nickname</label>
+              <input id="profile-name" class="profile-input" placeholder="Type a name…">
+            </div>
+            <div class="xp-wrap">
+              <div class="xp-top">
+                <span id="level-label">Level 1 – Beginner of Vodun</span>
+                <span id="xp-label">0 / 100 XP</span>
+              </div>
+              <div class="xp-bar-out"><div class="xp-bar-in" id="xp-bar"></div></div>
+            </div>
+            <ul class="stats-list" id="stats-list"></ul>
+            <div class="reset-row">
+              <button class="btn btn-secondary" id="reset-profile">Reset profile</button>
+            </div>
+          </div>
+
+          <div class="profile-card">
+            <h3 style="margin:0 0 4px;">Trophies</h3>
+            <p style="margin:0 0 6px;font-size:12px;color:var(--text-soft);">
+              Play the quiz, spirit game, tools and cuisine to unlock trophies. Locked trophies look faded.
+            </p>
+            <div class="ach-grid">
+              <div class="ach-card ach-locked" id="ach-quiz">
+                <div class="ach-icon">🥇</div>
+                <div>
+                  <div class="ach-main">Quiz Master</div>
+                  <div class="ach-sub">Score at least 80% in the main quiz.</div>
+                </div>
+              </div>
+              <div class="ach-card ach-locked" id="ach-spirit">
+                <div class="ach-icon">🔮</div>
+                <div>
+                  <div class="ach-main">Spirit Reader</div>
+                  <div class="ach-sub">Get a streak of 3 correct spirits.</div>
+                </div>
+              </div>
+              <div class="ach-card ach-locked" id="ach-fin">
+                <div class="ach-icon">💹</div>
+                <div>
+                  <div class="ach-main">Finance Wizard</div>
+                  <div class="ach-sub">Use the financial calculator 3 times.</div>
+                </div>
+              </div>
+              <div class="ach-card ach-locked" id="ach-xp">
+                <div class="ach-icon">🌈</div>
+                <div>
+                  <div class="ach-main">Dedicated Learner</div>
+                  <div class="ach-sub">Earn 150 XP by playing and learning.</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <script>
+    /*********** NAVIGATION ***********/
+    const navButtons = document.querySelectorAll(".nav-btn");
+    const views = {
+      learn: document.getElementById("view-learn"),
+      quiz: document.getElementById("view-quiz"),
+      spirits: document.getElementById("view-spirits"),
+      tools: document.getElementById("view-tools"),
+      cuisine: document.getElementById("view-cuisine"),
+      profile: document.getElementById("view-profile")
+    };
+
+    navButtons.forEach(btn => {
+      btn.addEventListener("click", () => {
+        const view = btn.getAttribute("data-view");
+        navButtons.forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+        Object.keys(views).forEach(key => {
+          views[key].classList.toggle("active", key === view);
+        });
+      });
+    });
+
+    /*********** PROFILE STORAGE ***********/
+    const STORAGE_KEY = "voduWorldProfile_full";
+    const defaultProfile = {
+      name: "Vodun Explorer",
+      xp: 0,
+      bestQuiz: 0,
+      bestSpiritStreak: 0,
+      financeUses: 0,
+      ach: { quiz:false, spirit:false, fin:false, xp:false }
+    };
+
+    function loadProfile() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) return JSON.parse(JSON.stringify(defaultProfile));
+        const data = JSON.parse(raw);
+        return {
+          ...defaultProfile,
+          ...data,
+          ach:{...defaultProfile.ach, ...(data.ach||{})}
+        };
+      } catch {
+        return JSON.parse(JSON.stringify(defaultProfile));
+      }
+    }
+    function saveProfile(p){localStorage.setItem(STORAGE_KEY,JSON.stringify(p));}
+
+    function addXP(amount){
+      const p = loadProfile();
+      p.xp += amount;
+      saveProfile(p);
+      updateProfileUI();
+    }
+
+    /*********** QUIZ DATA ***********/
+    const quizQuestions = [
+      {
+        cat:"Origins",
+        q:"Where did West African Vodun originally develop?",
+        opts:[
+          "In southern Benin and Togo among Fon and Ewe peoples",
+          "In northern Europe among Viking tribes",
+          "In the Middle East as desert monotheism",
+          "Only in modern North American cities"
+        ],
+        i:0,
+        exp:"Vodun comes from the Dahomey region of West Africa, mainly today’s Benin and Togo, among Fon and Ewe communities."
+      },
+      {
+        cat:"Nature",
+        q:"How does Vodun see nature?",
+        opts:[
+          "As empty and without spirit",
+          "As alive and full of spiritual presence",
+          "As an illusion to escape",
+          "As important only for money"
+        ],
+        i:1,
+        exp:"Rivers, trees, storms, and animals are understood as full of spirit. Nature is a living, sacred system."
+      },
+      {
+        cat:"Cosmology",
+        q:"What does Mawu-Lisa represent?",
+        opts:[
+          "Only an angry sky god",
+          "A trickster animal",
+          "A pair symbolising balance between moon/sun and soft/strong",
+          "A foreign saint added later"
+        ],
+        i:2,
+        exp:"Mawu-Lisa unites moon/sun, gentle/strong, female/male. It expresses cosmic balance."
+      },
+      {
+        cat:"Spirits",
+        q:"Legba is mainly associated with:",
+        opts:[
+          "The deep ocean",
+          "Crossroads and opening ways between humans and spirits",
+          "War and iron",
+          "Only love and beauty"
+        ],
+        i:1,
+        exp:"Legba is the gatekeeper of crossroads. People greet him first so communication with other spirits becomes possible."
+      },
+      {
+        cat:"Spirits",
+        q:"Which spirit is closely linked to earth, farming, and some diseases?",
+        opts:["Heviosso","Sakpata","Mami Wata","Dan"],
+        i:1,
+        exp:"Sakpata rules over the earth, agriculture, and illnesses connected with the ground. He also brings healing."
+      },
+      {
+        cat:"Spirits",
+        q:"Heviosso is known for:",
+        opts:[
+          "Thunder, lightning, and justice",
+          "Markets and trade only",
+          "Chaos without rules",
+          "Forgetfulness and sleep"
+        ],
+        i:0,
+        exp:"Heviosso is a thunder Vodun linked with justice; swearing falsely in his name is dangerous."
+      },
+      {
+        cat:"Rituals",
+        q:"Why are drums central in many Vodun ceremonies?",
+        opts:[
+          "They are only for noise and fun",
+          "They carry rhythms that call specific spirits",
+          "They replace human speech entirely",
+          "They are played only at the end"
+        ],
+        i:1,
+        exp:"Rhythms belong to particular spirits. Drums are like a spiritual language used to invite and honour them."
+      },
+      {
+        cat:"Rituals",
+        q:"In Vodun, spirit possession is usually seen as:",
+        opts:[
+          "A shameful sign of weakness",
+          "A joke to entertain tourists",
+          "A gift where the spirit uses a body to guide the community",
+          "Proof that someone is crazy"
+        ],
+        i:2,
+        exp:"Possession is a serious moment where the spirit ‘rides’ a person to dance, speak, or act for the group."
+      },
+      {
+        cat:"Divination",
+        q:"Fa (or Afa) divination is used to:",
+        opts:[
+          "Predict lottery numbers only",
+          "Seek guidance from spirits about problems and destiny",
+          "Teach mathematics",
+          "Replace all courts of law"
+        ],
+        i:1,
+        exp:"A diviner reads signs and stories to explain why things happen and what actions will restore balance."
+      },
+      {
+        cat:"Community",
+        q:"How is Vodun typically practiced?",
+        opts:[
+          "Alone in silence only",
+          "Mainly by reading books in private",
+          "Collectively with families and villages",
+          "Only on the internet"
+        ],
+        i:2,
+        exp:"Vodun is deeply social; ceremonies, healings, and festivals involve many members of the community."
+      }
+    ];
+
+    /*********** QUIZ LOGIC ***********/
+    (function initQuiz(){
+      const catEl=document.getElementById("quiz-category");
+      const qEl=document.getElementById("quiz-question");
+      const optsEl=document.getElementById("quiz-options");
+      const explEl=document.getElementById("quiz-expl");
+      const statusEl=document.getElementById("quiz-status");
+      const progressEl=document.getElementById("quiz-progress");
+      const nextBtn=document.getElementById("quiz-next");
+      const restartBtn=document.getElementById("quiz-restart");
+      const summaryEl=document.getElementById("quiz-summary");
+      const scoreBadge=document.getElementById("quiz-score-badge");
+      const summaryText=document.getElementById("quiz-summary-text");
+      let index=0,score=0,answered=false;
+
+      function render(){
+        const q=quizQuestions[index];
+        catEl.textContent=q.cat;
+        qEl.textContent=q.q;
+        statusEl.textContent=`Question ${index+1} / ${quizQuestions.length}`;
+        progressEl.style.width=(index/quizQuestions.length*100)+"%";
+        explEl.style.display="none";explEl.textContent="";
+        optsEl.innerHTML="";answered=false;
+        summaryEl.style.display="none";
+        restartBtn.style.display=index===quizQuestions.length-1?"inline-flex":"none";
+        nextBtn.textContent=index===quizQuestions.length-1?"Finish":"Next";
+
+        q.opts.forEach((opt,i)=>{
+          const btn=document.createElement("button");
+          btn.className="option-btn";
+          const letter=document.createElement("span");
+          letter.className="option-letter";
+          letter.textContent=String.fromCharCode(65+i);
+          const text=document.createElement("span");
+          text.textContent=opt;
+          btn.appendChild(letter);btn.appendChild(text);
+          btn.addEventListener("click",()=>{
+            if(answered)return;
+            answered=true;
+            handleAnswer(i);
+          });
+          optsEl.appendChild(btn);
+        });
+      }
+
+      function handleAnswer(selected){
+        const q=quizQuestions[index];
+        const buttons=optsEl.querySelectorAll(".option-btn");
+        buttons.forEach((b,i)=>{
+          if(i===q.i)b.classList.add("correct");
+          if(i===selected && i!==q.i)b.classList.add("incorrect");
+        });
+        if(selected===q.i){
+          score++;
+          explEl.textContent="✅ Correct. "+q.exp;
+          addXP(8);
+        }else{
+          explEl.textContent="ℹ️ Not exactly. "+q.exp;
+        }
+        explEl.style.display="block";
+        progressEl.style.width=((index+1)/quizQuestions.length*100)+"%";
+        if(index===quizQuestions.length-1){
+          finish();
+        }
+      }
+
+      function finish(){
+        const percent=Math.round(score/quizQuestions.length*100);
+        summaryEl.style.display="block";
+        scoreBadge.textContent=`Score: ${percent}%`;
+
+        const p=loadProfile();
+        if(percent>p.bestQuiz)p.bestQuiz=percent;
+        if(percent>=80)p.ach.quiz=true;
+        saveProfile(p);
+        updateProfileUI();
+
+        if(percent>=90){
+          summaryText.textContent="Amazing! You really mastered the basics of Vodun.";
+        }else if(percent>=70){
+          summaryText.textContent="Great job! You understand Vodun well. Try again to aim higher.";
+        }else{
+          summaryText.textContent="Nice try. Re-read the Learn section and replay the quiz.";
+        }
+      }
+
+      nextBtn.addEventListener("click",()=>{
+        if(index<quizQuestions.length-1){
+          index++;
+          render();
+        }else{
+          finish();
+        }
+      });
+
+      restartBtn.addEventListener("click",()=>{
+        index=0;
+        score=0;
+        render();
+      });
+
+      render();
+    })();
+
+    /*********** SPIRIT GAME ***********/
+    const spiritData=[
+      {name:"Legba",clues:[
+        "I stand where paths cross and doors open.",
+        "People greet me first in many ceremonies.",
+        "Keys, sticks, and crossroads are my signs."
+      ],note:"Legba opens and closes the communication between humans and spirits."},
+      {name:"Sakpata",clues:[
+        "I am linked with soil, farms, and certain diseases.",
+        "I can punish, but I also bring healing.",
+        "Farmers ask for my help when crops are in danger."
+      ],note:"Sakpata connects earth, disease, and healing."},
+      {name:"Heviosso",clues:[
+        "Thunder and lightning are my voice.",
+        "People call me when they need justice.",
+        "Swearing falsely in my name is risky."
+      ],note:"Heviosso is a thunder Vodun connected to justice and moral order."},
+      {name:"Dan",clues:[
+        "I am often imagined as a great serpent.",
+        "The rainbow and life force belong to me.",
+        "I help keep the universe in balance."
+      ],note:"Dan is a serpent Vodun protecting households and cosmic balance."},
+      {name:"Mami Wata",clues:[
+        "I live near rivers and water.",
+        "People see me as beautiful but unpredictable.",
+        "Mirrors and snakes often appear with me."
+      ],note:"Mami Wata is a widely known water spirit across West and Central Africa."}
+    ];
+
+    (function initSpirits(){
+      const cluesEl=document.getElementById("spirit-clues");
+      const optsEl=document.getElementById("spirit-options");
+      const feedbackEl=document.getElementById("spirit-feedback");
+      const newBtn=document.getElementById("spirit-new");
+      const scorePill=document.getElementById("spirit-score-pill");
+      let current=null,streak=0;
+      let profile=loadProfile();
+
+      function pick(){return spiritData[Math.floor(Math.random()*spiritData.length)];}
+
+      function render(){
+        current=pick();
+        cluesEl.innerHTML="";
+        current.clues.forEach(c=>{
+          const li=document.createElement("li");
+          li.textContent=c;
+          cluesEl.appendChild(li);
+        });
+        optsEl.innerHTML="";
+        spiritData.map(s=>s.name).sort().forEach(name=>{
+          const btn=document.createElement("button");
+          btn.className="spirit-btn";
+          btn.textContent=name;
+          btn.addEventListener("click",()=>guess(name,btn));
+          optsEl.appendChild(btn);
+        });
+        feedbackEl.textContent="";
+      }
+
+      function guess(name,btn){
+        const buttons=optsEl.querySelectorAll(".spirit-btn");
+        buttons.forEach(b=>b.disabled=true);
+        const correct=current.name;
+        buttons.forEach(b=>{if(b.textContent===correct)b.classList.add("correct");});
+        profile=loadProfile();
+        if(name===correct){
+          streak++;
+          feedbackEl.textContent="✅ Correct! "+current.note+" Current streak: "+streak;
+          addXP(6);
+          if(streak>profile.bestSpiritStreak)profile.bestSpiritStreak=streak;
+          if(streak>=3)profile.ach.spirit=true;
+        }else{
+          btn.classList.add("incorrect");
+          feedbackEl.textContent="ℹ️ The right answer is "+correct+". "+current.note+" Streak resets to 0.";
+          streak=0;
+        }
+        saveProfile(profile);
+        updateProfileUI();
+        scorePill.textContent="Best streak: "+profile.bestSpiritStreak;
+      }
+
+      newBtn.addEventListener("click",render);
+      scorePill.textContent="Best streak: "+profile.bestSpiritStreak;
+      render();
+    })();
+
+    /*********** RITUAL & SYMBOL HELPER ***********/
+    function generateRitualIdea() {
+      const topicInput = document.getElementById("ritual-topic");
+      const out = document.getElementById("ritual-output");
+      const raw = (topicInput.value || "").trim().toLowerCase();
+
+      const baseTopic = raw || "ancestors";
+
+      let spirit = "Ancestors";
+      let symbols = ["🕯️ candles", "🥁 drums", "🍚 shared food"];
+      let place = "in a quiet corner of the house";
+      let value = "gratitude and respect";
+      let action = "speak names of elders and thank them for protection";
+
+      if (baseTopic.includes("legba")) {
+        spirit = "Legba – spirit of crossroads and openings";
+        symbols = ["🗝️ key", "🚪 doorway or path", "🍷 small drink offering"];
+        place = "near a door, road, or crossing of paths";
+        value = "opening good roads and clear communication";
+        action = "ask Legba to open the way before any other ritual or important decision.";
+      } else if (baseTopic.includes("sakpata")) {
+        spirit = "Sakpata – earth, farming, and healing";
+        symbols = ["🌾 grains", "🧺 bowl of soil", "💧 clean water"];
+        place = "close to a plant, tree, or garden";
+        value = "respect for the land and those who work it";
+        action = "touch the soil, ask for healing of the body and the earth.";
+      } else if (baseTopic.includes("hevi") || baseTopic.includes("thunder")) {
+        spirit = "Heviosso – thunder and justice";
+        symbols = ["⚡ zigzag lines", "🔔 small bell", "🪙 metal coin"];
+        place = "where you can see the sky, even from a window";
+        value = "telling the truth and repairing injustice";
+        action = "ring the bell once while promising to act more fairly.";
+      } else if (baseTopic.includes("mami")) {
+        spirit = "Mami Wata – water and mystery";
+        symbols = ["🌊 bowl of water", "🐍 snake drawing", "🪞 mirror"];
+        place = "near clean water or a simple bowl on a table";
+        value = "beauty, danger, and taking care of desires";
+        action = "look into the water, think about your wishes, and choose one healthy desire to follow.";
+      } else if (baseTopic.includes("dan")) {
+        spirit = "Dan – serpent and rainbow";
+        symbols = ["🌈 rainbow lines", "🌀 spiral drawing", "🪢 cord or string"];
+        place = "anywhere you can draw a long curved line";
+        value = "balance and protection of the home";
+        action = "draw a simple serpent line and imagine it protecting your room or house.";
+      }
+
+      const idea =
+`✨ <b>Ritual idea for: ${baseTopic}</b><br><br>
+<b>Spirit focus:</b> ${spirit}<br><br>
+<b>Place:</b> ${place}.<br>
+<b>Symbols:</b> ${symbols.join(", ")}.<br>
+<b>Main value:</b> ${value}.<br><br>
+<b>Simple steps:</b><br>
+1. Prepare the space and place the symbols with care.<br>
+2. Take a short moment of silence and breathe slowly.<br>
+3. ${action}<br>
+4. End by saying a simple “thank you” and putting everything away with respect.`;
+
+      out.innerHTML = idea;
+      addXP(4);
+    }
+
+    /*********** CUISINE – RANDOM RECIPE ***********/
+    function generateRecipe() {
+      const recipes = [
+        {
+          name: "Akassa with Palm-Oil Sauce",
+          steps: [
+            "Ferment corn dough overnight.",
+            "Cook gently until thick and smooth.",
+            "Prepare a palm-oil sauce with onions and chili.",
+            "Serve warm—symbolizes grounding and stability."
+          ]
+        },
+        {
+          name: "Gboman Leaf Stew",
+          steps: [
+            "Wash gboman (leafy greens).",
+            "Cook with palm oil, garlic, and smoked fish.",
+            "Add a small chili for spiritual ‘heat’.",
+            "Shared at ceremonies to honor ancestors."
+          ]
+        },
+        {
+          name: "Millet Kpètè-Kpètè Drink",
+          steps: [
+            "Ferment millet for 24 hours.",
+            "Strain and sweeten lightly.",
+            "Serve in a calabash bowl.",
+            "Used in rituals of friendship and unity."
+          ]
+        },
+        {
+          name: "Dan’s Rainbow Porridge",
+          steps: [
+            "Make millet porridge.",
+            "Color with natural fruit powders (hibiscus, mango, spirulina).",
+            "Serve in layers to represent the serpent Dan.",
+            "Symbolizes balance and protection."
+          ]
+        },
+        {
+          name: "Sakpata Harvest Rice",
+          steps: [
+            "Cook rice in palm oil.",
+            "Add roasted peanuts and ground spices.",
+            "Offer the first spoon to the earth.",
+            "Represents gratitude for crops and fertility."
+          ]
+        }
+      ];
+
+      const r = recipes[Math.floor(Math.random() * recipes.length)];
+
+      const html = `
+        <b>🍛 ${r.name}</b><br><br>
+        <b>How to prepare:</b><br>
+        ${r.steps.map(s => "• " + s).join("<br>")}
+      `;
+
+      document.getElementById("recipe-output").innerHTML = html;
+      addXP(4);
+    }
+
+    /*********** FINANCIAL CALCULATOR ***********/
+    (function initFinance(){
+      const priceEl=document.getElementById("fin-price");
+      const costEl=document.getElementById("fin-cost");
+      const fixedEl=document.getElementById("fin-fixed");
+      const qtyEl=document.getElementById("fin-qty");
+      const out=document.getElementById("fin-output");
+      const btn=document.getElementById("fin-calc");
+
+      btn.addEventListener("click",()=>{
+        const P=parseFloat(priceEl.value);
+        const V=parseFloat(costEl.value);
+        const F=parseFloat(fixedEl.value);
+        const Q=parseFloat(qtyEl.value);
+        if(isNaN(P)||isNaN(V)||isNaN(F)||isNaN(Q)||P<=V||Q<=0){
+          out.textContent="Please enter valid numbers. Selling price must be higher than variable cost, and quantity > 0.";
+          return;
+        }
+        const cm=P-V;
+        const profit=(cm*Q)-F;
+        const margin=(cm/P)*100;
+        const qBreak=F/cm;
+
+        const p=loadProfile();
+        p.financeUses+=1;
+        if(p.financeUses>=3)p.ach.fin=true;
+        saveProfile(p);
+        addXP(5);
+
+        out.innerHTML =
+          `Contribution margin per unit: <b>${cm.toFixed(2)}</b><br>`+
+          `Profit at ${Q.toFixed(0)} units: <b>${profit.toFixed(2)}</b><br>`+
+          `Margin on selling price: <b>${margin.toFixed(1)}%</b><br>`+
+          `Break-even quantity: <b>${qBreak.toFixed(1)} units</b>`;
+      });
+    })();
+
+    /*********** PROFILE UI ***********/
+    function updateProfileUI(){
+      const nameDisplay=document.getElementById("profile-name-display");
+      const nameInput=document.getElementById("profile-name");
+      const avatarEmoji=document.getElementById("avatar-emoji");
+      const levelLabel=document.getElementById("level-label");
+      const xpLabel=document.getElementById("xp-label");
+      const xpBar=document.getElementById("xp-bar");
+      const statsList=document.getElementById("stats-list");
+      const achQuiz=document.getElementById("ach-quiz");
+      const achSpirit=document.getElementById("ach-spirit");
+      const achFin=document.getElementById("ach-fin");
+      const achXp=document.getElementById("ach-xp");
+
+      const p=loadProfile();
+
+      nameDisplay.textContent=p.name||"Vodun Explorer";
+      nameInput.value=p.name==="Vodun Explorer"?"":p.name;
+
+      function avatarFromXP(x){if(x>=150)return "🌈";if(x>=100)return"🔮";if(x>=50)return"🕯️";return"🧿";}
+      avatarEmoji.textContent=avatarFromXP(p.xp);
+
+      function levelFromXP(x){
+        if(x>=200)return{lvl:3,title:"Vodun Guide"};
+        if(x>=100)return{lvl:2,title:"Ritual Apprentice"};
+        return{lvl:1,title:"Beginner of Vodun"};
+      }
+      const lv=levelFromXP(p.xp);
+      levelLabel.textContent=`Level ${lv.lvl} – ${lv.title}`;
+      const xpInLevel=p.xp%100;
+      xpLabel.textContent=`${xpInLevel} / 100 XP`;
+      xpBar.style.width=Math.min(100,xpInLevel)+"%";
+
+      statsList.innerHTML="";
+      ["Total XP: "+p.xp,
+       "Best quiz score: "+p.bestQuiz+"%",
+       "Best spirit streak: "+p.bestSpiritStreak,
+       "Financial tools used: "+p.financeUses
+      ].forEach(t=>{
+        const li=document.createElement("li");
+        li.textContent=t;
+        statsList.appendChild(li);
+      });
+
+      if(p.bestQuiz>=80)p.ach.quiz=true;
+      if(p.xp>=150)p.ach.xp=true;
+
+      function setAch(el,ok){if(ok)el.classList.remove("ach-locked");else el.classList.add("ach-locked");}
+      setAch(achQuiz,p.ach.quiz);
+      setAch(achSpirit,p.ach.spirit);
+      setAch(achFin,p.ach.fin);
+      setAch(achXp,p.ach.xp);
+    }
+
+    (function initProfile(){
+      const nameInput=document.getElementById("profile-name");
+      const resetBtn=document.getElementById("reset-profile");
+
+      nameInput.addEventListener("blur",()=>{
+        const p=loadProfile();
+        const val=nameInput.value.trim();
+        p.name=val||"Vodun Explorer";
+        saveProfile(p);
+        updateProfileUI();
+      });
+
+      resetBtn.addEventListener("click",()=>{
+        if(!confirm("Reset profile, XP, and trophies?"))return;
+        saveProfile(defaultProfile);
+        updateProfileUI();
+      });
+
+      updateProfileUI();
+    })();
+  </script>
+</body>
+</html>
+
